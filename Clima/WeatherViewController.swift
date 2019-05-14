@@ -21,6 +21,7 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate {
 
     //TODO: Declare instance variables here
     let locationManager = CLLocationManager()
+    let weatherdatamodel = WeatherDataModel()
 
     
     //Pre-linked IBOutlets
@@ -53,6 +54,11 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate {
         Alamofire.request(url, method: .get , parameters: parameters).responseJSON { response in
             if response.result.isSuccess {
                 print("Success ! got the weather data")
+                let weatherJSON : JSON = JSON(response.result.value!)
+                print(weatherJSON)
+                
+                self.updateWeatherData(json: weatherJSON)
+                
             } else {
                 print("Error \(String(describing: response.result.error))")
                 self.cityLabel.text = "Connection Issues !"
@@ -70,7 +76,21 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate {
    
     
     //Write the updateWeatherData method here:
-    
+    func updateWeatherData(json: JSON){
+        
+        if let tempResult = json["main"]["temp"].double {
+        weatherdatamodel.temperature = Int(tempResult - 273.15)
+        weatherdatamodel.city = json["name"].stringValue
+        weatherdatamodel.condition = json["weather"][0].intValue
+        weatherdatamodel.weatherIconName = weatherdatamodel.updateWeatherIcon(condition: weatherdatamodel.condition)
+        
+        updateUIWithWeatherData()
+            
+        } else {
+            cityLabel.text = "Weather Unavailable!"
+        }
+        
+    }
 
     
     
@@ -80,7 +100,13 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate {
     
     
     //Write the updateUIWithWeatherData method here:
-    
+    func updateUIWithWeatherData(){
+        
+        cityLabel.text = weatherdatamodel.city
+        temperatureLabel.text = "\(weatherdatamodel.temperature)"
+        weatherIcon.image = UIImage(named: weatherdatamodel.weatherIconName)
+        
+    }
     
     
     
