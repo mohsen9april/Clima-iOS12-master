@@ -54,9 +54,9 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate, Chang
         Alamofire.request(url, method: .get , parameters: parameters).responseJSON { response in
             if response.result.isSuccess {
                 print("Success ! got the weather data")
+                
                 let weatherJSON : JSON = JSON(response.result.value!)
                 print(weatherJSON)
-                
                 self.updateWeatherData(json: weatherJSON)
                 
             } else {
@@ -81,9 +81,10 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate, Chang
         if let tempResult = json["main"]["temp"].double {
         weatherdatamodel.temperature = Int(tempResult - 273.15)
         weatherdatamodel.city = json["name"].stringValue
-        weatherdatamodel.condition = json["weather"][0].intValue
+        weatherdatamodel.condition = json["weather"][0]["id"].intValue
+            print( weatherdatamodel.condition)
         weatherdatamodel.weatherIconName = weatherdatamodel.updateWeatherIcon(condition: weatherdatamodel.condition)
-        
+        print(weatherdatamodel.updateWeatherIcon(condition: weatherdatamodel.condition))
         updateUIWithWeatherData()
             
         } else {
@@ -103,7 +104,7 @@ class WeatherViewController: UIViewController , CLLocationManagerDelegate, Chang
     func updateUIWithWeatherData(){
         
         cityLabel.text = weatherdatamodel.city
-        temperatureLabel.text = "\(weatherdatamodel.temperature)"
+        temperatureLabel.text = "\(weatherdatamodel.temperature)°"
         weatherIcon.image = UIImage(named: weatherdatamodel.weatherIconName)
         
     }
